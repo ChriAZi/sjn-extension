@@ -11,18 +11,32 @@
     "package": "plasmo package"
   },
   "dependencies": {
+    "@huggingface/inference": "^2.6.1",
+    "@pinecone-database/pinecone": "^0.1.6",
+    "@plasmohq/messaging": "^0.5.0",
     "plasmo": "0.69.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@plasmohq/prettier-plugin-sort-imports": "3.6.4",
     "@types/chrome": "0.0.227",
     "@types/node": "18.15.11",
     "@types/react": "18.0.32",
     "@types/react-dom": "18.0.11",
-    "prettier": "2.8.7",
-    "typescript": "5.0.3",
-    "@plasmohq/prettier-plugin-sort-imports": "3.6.4"
+    "@typescript-eslint/eslint-plugin": "^5.59.5",
+    "@typescript-eslint/parser": "^5.59.5",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.40.0",
+    "eslint-config-standard-with-typescript": "^34.0.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.32.2",
+    "postcss": "^8.4.23",
+    "react-loading-skeleton": "^3.3.1",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.4"
   },
   "manifest": {
     "host_permissions": [
