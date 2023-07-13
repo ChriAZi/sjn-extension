@@ -37,7 +37,7 @@ export default function Source ({
     }
 
     return (
-      <div className={'flex flex-wrap gap-0.5'}>
+      <div className={'flex flex-wrap gap-0.5 text-black'}>
         {content}
       </div>
     )
