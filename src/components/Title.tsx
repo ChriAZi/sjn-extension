@@ -12,7 +12,7 @@ export default function Title ({
     return (
       <div className={'flex min-w-0 gap-1 w-full items-center'}>
         <div className={'flex flex-wrap gap-1.5 items-center min-w-fit'}>
-          <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'} />
+          <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'}/>
           <h1>An error occurred - </h1>
           <h1>Please try again later.</h1>
         </div>
@@ -22,7 +22,7 @@ export default function Title ({
     let content = (
       <div className={'flex flex-wrap min-w-0 gap-1 w-full items-center'}>
         <div className={'flex gap-1.5 items-center min-w-fit text-black'}>
-          <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'} />
+          <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'}/>
           <h1>Relevant solution story:</h1>
         </div>
         <a className={'min-w-0 text-dark-blue'}
@@ -39,8 +39,8 @@ export default function Title ({
     if (placeholder) {
       content = (
         <div className={'flex min-w-0 gap-1 w-full items-center'}>
-          <div className={'flex gap-1.5 items-center min-w-fit'}>
-            <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'} />
+          <div className={'flex gap-1.5 items-center min-w-fit text-black'}>
+            <img className={'h-4'} src={sjnLogo} alt={'Solution Journalism Network logo'}/>
             <h1>No relevant solution story found</h1>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function Title ({
     }
     return content
   } else {
-    return <Skeleton containerClassName={'w-[85%]'} />
+    return <Skeleton containerClassName={'w-[85%]'}/>
   }
 }
 
