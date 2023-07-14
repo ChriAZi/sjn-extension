@@ -14,11 +14,10 @@ export default function ActionButton ({
     return (
       <>
         <button
-          className={'flex-grow-0 mt-auto mt-4'}
+          className={'flex-grow-0 mt-auto'}
           onClick={handleClick}>
           <div className={'flex items-center h-10 bg-dark-grey px-3 py-4 rounded-full'}>
-            <p
-              className={'whitespace-nowrap text-white font-medium'}>
+            <p className={'whitespace-nowrap text-white font-medium hover:underline decoration-2'}>
               {text}
             </p>
           </div>
@@ -45,8 +44,7 @@ export default function ActionButton ({
           className={'flex-grow-0 mt-auto'}
           onClick={handleClick}>
           <div className={'flex items-center h-10 bg-dark-grey px-3 py-4 rounded-full'}>
-            <p
-              className={'whitespace-nowrap text-white font-medium'}>
+            <p className={'whitespace-nowrap text-white font-medium hover:underline decoration-2'}>
               {text}
             </p>
           </div>

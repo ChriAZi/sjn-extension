@@ -12,10 +12,11 @@ export default function Source ({
   } else if (placeholder !== undefined && publicationDate !== undefined && newsOutlet !== undefined) {
     let content = (
       <>
-        <h2>Sourced from
-          <a href={'https://www.solutionsjournalism.org/storytracker'} target='_blank'
-             rel='noopener noreferrer'>
-            <b> Solution Story Tracker®</b>
+        <h2>Sourced from &nsbp;
+          <a className={'hover:underline decoration-2'} href={'https://www.solutionsjournalism.org/storytracker'}
+             target="_blank"
+             rel="noopener noreferrer">
+            <b>Solution Story Tracker®</b>
           </a>
         </h2>
         <h2>·</h2>
@@ -27,10 +28,11 @@ export default function Source ({
 
     if (placeholder) {
       content = <>
-        <h2>Discover more SJ-stories from the
-          <a href={'https://www.solutionsjournalism.org/storytracker'} target='_blank'
-             rel='noopener noreferrer'>
-            <b> Solution Story Tracker®</b>
+        <h2>Discover more SJ-stories from the &nsbp;
+          <a className={'hover:underline decoration-2'} href={'https://www.solutionsjournalism.org/storytracker'}
+             target="_blank"
+             rel="noopener noreferrer">
+            <b>Solution Story Tracker®</b>
           </a>
         </h2>
       </>
@@ -42,7 +44,7 @@ export default function Source ({
       </div>
     )
   } else {
-    return <Skeleton containerClassName={'w-[50%]'} />
+    return <Skeleton containerClassName={'w-[50%]'}/>
   }
 }
 

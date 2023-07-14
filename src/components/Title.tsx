@@ -29,7 +29,7 @@ export default function Title ({
            href={url}
            target={'_blank'}
            rel={'noopener noreferrer'}>
-          <h1>
+          <h1 className={'hover:underline decoration-2'}>
             {title}
           </h1>
         </a>
