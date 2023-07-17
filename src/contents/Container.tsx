@@ -11,7 +11,7 @@ import ActionButton from '~components/ActionButton'
 
 import { SkeletonTheme } from 'react-loading-skeleton'
 
-const SJContainer: FC<PlasmoCSUIProps> = ({ anchor }) => {
+const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
@@ -35,6 +35,17 @@ const SJContainer: FC<PlasmoCSUIProps> = ({ anchor }) => {
           publicationDate: new Date(Date.parse(res.article.publicationDate)),
           url: res.article.url,
           show: res.article.show,
+          error: false
+        })
+      }
+      return () => {
+        setArticle({
+          title: undefined,
+          description: undefined,
+          newsOutlet: undefined,
+          publicationDate: undefined,
+          url: undefined,
+          show: undefined,
           error: false
         })
       }
@@ -74,31 +85,31 @@ const SJContainer: FC<PlasmoCSUIProps> = ({ anchor }) => {
   }
 
   return (
-    <SkeletonTheme baseColor='#A9A9A9' highlightColor='#C8C8C8'>
+    <SkeletonTheme baseColor="#A9A9A9" highlightColor="#C8C8C8">
       <div style={{ width }}
            className={containerClasses}>
         <div className={'flex min-w-0 text-base font-medium'}>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url} />
+          <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url}/>
         </div>
         {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-        <hr className={`${article?.show ? 'border-very-light-blue' : 'border-loading-grey'}`} />
+        <hr className={`${article?.show ? 'border-very-light-blue' : 'border-loading-grey'}`}/>
         {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
         <Source error={article?.error} placeholder={!article?.show}
                 publicationDate={article?.publicationDate}
-                newsOutlet={article?.newsOutlet} />
+                newsOutlet={article?.newsOutlet}/>
         <div className={`flex ${width < 720 ? 'flex-wrap gap-3' : 'gap-3'}`}>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <Description error={article?.error} placeholder={!article?.show} description={article?.description} />
+          <Description error={article?.error} placeholder={!article?.show} description={article?.description}/>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <ActionButton error={article?.error} placeholder={!article?.show} url={article?.url} />
+          <ActionButton error={article?.error} placeholder={!article?.show} url={article?.url}/>
         </div>
       </div>
     </SkeletonTheme>
   )
 }
 
-export default SJContainer
+export default Container
 
 async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
   const articleNodes = document.querySelectorAll('article')
