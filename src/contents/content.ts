@@ -1,5 +1,13 @@
 import type { PlasmoCSConfig } from 'plasmo'
 
+let currentUrl = location.href
+setInterval(() => {
+  if (location.href !== currentUrl) {
+    currentUrl = location.href
+    // TODO
+  }
+}, 50)
+
 function getGreatGrandParents (): HTMLElement[] {
   const articles = document.querySelectorAll('article')
   return Array.from(articles).map(article => {
@@ -8,8 +16,7 @@ function getGreatGrandParents (): HTMLElement[] {
     } else {
       return article?.parentElement?.parentElement?.parentElement as HTMLElement
     }
-  }
-  )
+  })
 }
 
 function handleRoundedCorners (): void {

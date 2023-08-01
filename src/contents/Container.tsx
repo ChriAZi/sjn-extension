@@ -16,6 +16,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
+  const margin = localStorage.getItem('condition') === 'prototype' ? '0rem 0rem 2rem 0rem' : 0
 
   useEffect(() => {
     async function getRecommendationFromTitle (title: string | undefined): Promise<any> {
@@ -38,17 +39,6 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
           error: false
         })
       }
-      return () => {
-        setArticle({
-          title: undefined,
-          description: undefined,
-          newsOutlet: undefined,
-          publicationDate: undefined,
-          url: undefined,
-          show: undefined,
-          error: false
-        })
-      }
     }
 
     getRecommendationFromTitle(getTitle(anchor)).catch(() => {
@@ -62,6 +52,18 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
         error: true
       })
     })
+
+    return () => {
+      setArticle({
+        title: undefined,
+        description: undefined,
+        newsOutlet: undefined,
+        publicationDate: undefined,
+        url: undefined,
+        show: undefined,
+        error: false
+      })
+    }
   }, [])
 
   let containerClasses = 'w-full p-4 flex flex-col gap-1 text-sm'
@@ -86,8 +88,10 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
   return (
     <SkeletonTheme baseColor="#A9A9A9" highlightColor="#C8C8C8">
-      <div style={{ width }}
-           className={containerClasses}>
+      <div style={{
+        width,
+        margin
+      }} className={containerClasses}>
         <div className={'flex min-w-0 text-base font-medium'}>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
           <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url}/>
@@ -160,15 +164,24 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
       }
     }
   })
+  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+    if (localStorage.getItem('condition') === 'prototype') {
+      return document.querySelectorAll('.article') as unknown as PlasmoGetInlineAnchorList
+    } else {
+      return null as unknown as PlasmoGetInlineAnchorList
+    }
+  }
   return anchors as unknown as PlasmoGetInlineAnchorList
 }
 
 function getTitle (anchor: PlasmoCSUIAnchor | undefined): string | undefined {
-  return anchor?.element.querySelector('h4')?.innerHTML
+  return localStorage.getItem('condition') === 'prototype'
+    ? anchor?.element.querySelector('h2 > a')?.innerHTML
+    : anchor?.element.querySelector('h4')?.innerHTML
 }
 
 export const config: PlasmoCSConfig = {
-  matches: ['https://news.google.com/*en']
+  matches: ['https://news.google.com/*en', 'http://localhost:*/*']
 }
 
 export async function getInlineAnchorList (): Promise<PlasmoGetInlineAnchorList> {

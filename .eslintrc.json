@@ -22,6 +22,7 @@
     "react/react-in-jsx-scope": "off"
   },
   "ignorePatterns": [
-    ".plasmo/*"
+    ".plasmo/*",
+    "/src/util/google-analytics.js"
   ]
 }
