@@ -10,13 +10,15 @@ import Description from '~components/Description'
 import ActionButton from '~components/ActionButton'
 
 import { SkeletonTheme } from 'react-loading-skeleton'
+import { addClick } from '~util/firestore'
 
 const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
+  const traditionalTitle: string | undefined = getTitle(anchor)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
-  const margin = localStorage.getItem('condition') === 'prototype' ? '0rem 0rem 2rem 0rem' : 0
+  const margin = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? '0 0 2rem 0' : '0'
 
   useEffect(() => {
     async function getRecommendationFromTitle (title: string | undefined): Promise<any> {
@@ -41,7 +43,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
       }
     }
 
-    getRecommendationFromTitle(getTitle(anchor)).catch(() => {
+    getRecommendationFromTitle(traditionalTitle).catch(() => {
       setArticle({
         title: undefined,
         description: undefined,
@@ -66,12 +68,31 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
     }
   }, [])
 
+  useEffect(() => {
+    const handler = (): void => {
+      (async (): Promise<void> => {
+        await handleTraditionalTitleClick(article?.title as string, traditionalTitle as string)
+      })().catch(e => {
+        console.error('error adding click for traditional news', e)
+      })
+    }
+    anchor?.element.addEventListener('click', () => {
+      handler()
+    })
+
+    return () => {
+      anchor?.element.removeEventListener('click', () => {
+        handler()
+      })
+    }
+  }, [])
+
   let containerClasses = 'w-full p-4 flex flex-col gap-1 text-sm'
 
   if (window.location.href.includes('home')) {
-    containerClasses += ' mt-4 rounded-2xl'
+    containerClasses += ' !mt-4 rounded-2xl'
   } else if (window.location.href.includes('publication') || window.location.href.includes('search')) {
-    containerClasses += ' mt-12 rounded-b-lg'
+    containerClasses += ' !mt-12 rounded-b-lg'
   } else {
     containerClasses += ' rounded-b-2xl'
   }
@@ -106,7 +127,9 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
           <Description error={article?.error} placeholder={!article?.show} description={article?.description}/>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <ActionButton error={article?.error} placeholder={!article?.show} url={article?.url}/>
+          <ActionButton error={article?.error} placeholder={!article?.show} title={article?.title}
+                        traditionalTitle={traditionalTitle}
+                        url={article?.url}/>
         </div>
       </div>
     </SkeletonTheme>
@@ -114,6 +137,17 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 }
 
 export default Container
+
+async function handleTraditionalTitleClick (title: string, traditionalTitle: string): Promise<void> {
+  let sessionId
+  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+    sessionId = localStorage.getItem('sessionId')
+  } else {
+    sessionId = await chrome.storage.local.get('sessionId')
+    sessionId = sessionId.sessionId
+  }
+  await addClick(sessionId, 'traditional--link', traditionalTitle, title)
+}
 
 async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
   const articleNodes = document.querySelectorAll('article')
@@ -175,7 +209,7 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
 }
 
 function getTitle (anchor: PlasmoCSUIAnchor | undefined): string | undefined {
-  return localStorage.getItem('condition') === 'prototype'
+  return process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype'
     ? anchor?.element.querySelector('h2 > a')?.innerHTML
     : anchor?.element.querySelector('h4')?.innerHTML
 }

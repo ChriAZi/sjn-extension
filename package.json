@@ -15,6 +15,7 @@
     "@pinecone-database/pinecone": "^0.1.6",
     "@plasmohq/messaging": "^0.5.0",
     "@plasmohq/storage": "^1.7.0",
+    "firebase": "^10.1.0",
     "plasmo": "0.69.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"

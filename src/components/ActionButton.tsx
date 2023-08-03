@@ -1,15 +1,18 @@
 import cssText from 'data-text:~style.css'
-import { Analytics } from '~util/google-analytics'
+import { addClick } from '~util/firestore'
 
 export default function ActionButton ({
   error,
   placeholder,
+  title,
+  traditionalTitle,
   url
 }: ActionButtonProps): JSX.Element {
   if (error !== undefined && error) {
     const text = 'Browse SJ-Articles'
     const handleClick = async (): Promise<void> => {
-      await Analytics.fireEvent('button_clicked', { id: 'error--story-tracker' })
+      const sessionId = await getSessionId()
+      await addClick(sessionId, 'error--button', traditionalTitle)
       window.open('https://www.solutionsjournalism.org/storytracker', '_blank')
     }
 
@@ -28,8 +31,9 @@ export default function ActionButton ({
   } else if (placeholder !== undefined && url !== undefined) {
     let text = 'Read Full Story'
     let handleClick = async (): Promise<void> => {
-      if (url !== undefined) {
-        await Analytics.fireEvent('button_clicked', { id: 'full-story' })
+      if (url !== undefined && title !== undefined && traditionalTitle !== undefined) {
+        const sessionId = await getSessionId()
+        await addClick(sessionId, 'fullstory--button', traditionalTitle, title)
         window.open(url, '_blank')
       }
     }
@@ -37,7 +41,8 @@ export default function ActionButton ({
     if (placeholder) {
       text = 'Browse SJ-Articles'
       handleClick = async (): Promise<void> => {
-        await Analytics.fireEvent('button_clicked', { id: 'placeholder--story-tracker' })
+        const sessionId = await getSessionId()
+        await addClick(sessionId, 'placeholder--button', traditionalTitle)
         window.open('https://www.solutionsjournalism.org/storytracker', '_blank')
       }
     }
@@ -61,7 +66,20 @@ export default function ActionButton ({
 interface ActionButtonProps {
   error: boolean | undefined
   placeholder: boolean | undefined
+  title: string | undefined
+  traditionalTitle: string | undefined
   url: string | undefined
+}
+
+async function getSessionId (): Promise<string> {
+  let sessionId
+  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+    sessionId = localStorage.getItem('sessionId')
+  } else {
+    sessionId = await chrome.storage.local.get('sessionId')
+    sessionId = sessionId.sessionId
+  }
+  return sessionId
 }
 
 export function getStyle (): HTMLStyleElement {
