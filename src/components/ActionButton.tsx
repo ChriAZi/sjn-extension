@@ -1,19 +1,20 @@
 import cssText from 'data-text:~style.css'
-import { addClick } from '~util/firestore'
+import { addClick, getSessionId } from '~util/firestore'
 
 export default function ActionButton ({
   error,
   placeholder,
-  title,
   traditionalTitle,
+  title,
   url
 }: ActionButtonProps): JSX.Element {
   if (error !== undefined && error) {
     const text = 'Browse SJ-Articles'
     const handleClick = async (): Promise<void> => {
       const sessionId = await getSessionId()
-      await addClick(sessionId, 'error--button', traditionalTitle)
-      window.open('https://www.solutionsjournalism.org/storytracker', '_blank')
+      const url = 'https://www.solutionsjournalism.org/storytracker'
+      await addClick(sessionId, 'error--button', traditionalTitle, url)
+      window.open(url, '_blank')
     }
 
     return (
@@ -33,7 +34,7 @@ export default function ActionButton ({
     let handleClick = async (): Promise<void> => {
       if (url !== undefined && title !== undefined && traditionalTitle !== undefined) {
         const sessionId = await getSessionId()
-        await addClick(sessionId, 'fullstory--button', traditionalTitle, title)
+        await addClick(sessionId, 'sj--button', traditionalTitle, url, title)
         window.open(url, '_blank')
       }
     }
@@ -42,8 +43,9 @@ export default function ActionButton ({
       text = 'Browse SJ-Articles'
       handleClick = async (): Promise<void> => {
         const sessionId = await getSessionId()
-        await addClick(sessionId, 'placeholder--button', traditionalTitle)
-        window.open('https://www.solutionsjournalism.org/storytracker', '_blank')
+        const url = 'https://www.solutionsjournalism.org/storytracker'
+        await addClick(sessionId, 'placeholder--button', traditionalTitle, url)
+        window.open(url, '_blank')
       }
     }
     return (
@@ -66,20 +68,9 @@ export default function ActionButton ({
 interface ActionButtonProps {
   error: boolean | undefined
   placeholder: boolean | undefined
-  title: string | undefined
   traditionalTitle: string | undefined
+  title: string | undefined
   url: string | undefined
-}
-
-async function getSessionId (): Promise<string> {
-  let sessionId
-  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
-    sessionId = localStorage.getItem('sessionId')
-  } else {
-    sessionId = await chrome.storage.local.get('sessionId')
-    sessionId = sessionId.sessionId
-  }
-  return sessionId
 }
 
 export function getStyle (): HTMLStyleElement {

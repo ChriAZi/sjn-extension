@@ -67,7 +67,18 @@ export async function endSession (sessionId: string): Promise<void> {
   }
 }
 
-export async function addClick (sessionId: string, clickType: string, traditionalTitle: string = '', sjTitle: string = ''): Promise<void> {
+export async function getSessionId (): Promise<string> {
+  let sessionId
+  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+    sessionId = localStorage.getItem('sessionId')
+  } else {
+    sessionId = await chrome.storage.local.get('sessionId')
+    sessionId = sessionId.sessionId
+  }
+  return sessionId
+}
+
+export async function addClick (sessionId: string, clickType: string, traditionalTitle: string = '', url: string = '', sjTitle: string = ''): Promise<void> {
   try {
     const sessionRef = doc(firestore, 'sessions', sessionId)
     const sessionSnap = await getDoc(sessionRef)
@@ -77,7 +88,8 @@ export async function addClick (sessionId: string, clickType: string, traditiona
         clicks: [...clicks, {
           type: clickType,
           sjTitle,
-          traditionalTitle
+          traditionalTitle,
+          url
         }]
       })
     } else {

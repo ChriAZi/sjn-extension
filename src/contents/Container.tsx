@@ -71,7 +71,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   useEffect(() => {
     const handler = (): void => {
       (async (): Promise<void> => {
-        await handleTraditionalTitleClick(article?.title as string, traditionalTitle as string)
+        await handleTraditionalTitleClick(traditionalTitle as string, article?.title as string)
       })().catch(e => {
         console.error('error adding click for traditional news', e)
       })
@@ -115,7 +115,8 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
       }} className={containerClasses}>
         <div className={'flex min-w-0 text-base font-medium'}>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url}/>
+          <Title error={article?.error} placeholder={!article?.show} traditionalTitle={traditionalTitle}
+                 title={article?.title} url={article?.url}/>
         </div>
         {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
         <hr className={`${article?.show ? 'border-very-light-blue' : 'border-loading-grey'}`}/>
@@ -127,8 +128,8 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
           <Description error={article?.error} placeholder={!article?.show} description={article?.description}/>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <ActionButton error={article?.error} placeholder={!article?.show} title={article?.title}
-                        traditionalTitle={traditionalTitle}
+          <ActionButton error={article?.error} placeholder={!article?.show} traditionalTitle={traditionalTitle}
+                        title={article?.title}
                         url={article?.url}/>
         </div>
       </div>
@@ -138,7 +139,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
 export default Container
 
-async function handleTraditionalTitleClick (title: string, traditionalTitle: string): Promise<void> {
+async function handleTraditionalTitleClick (traditionalTitle: string, title: string): Promise<void> {
   let sessionId
   if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
     sessionId = localStorage.getItem('sessionId')
@@ -146,7 +147,7 @@ async function handleTraditionalTitleClick (title: string, traditionalTitle: str
     sessionId = await chrome.storage.local.get('sessionId')
     sessionId = sessionId.sessionId
   }
-  await addClick(sessionId, 'traditional--link', traditionalTitle, title)
+  await addClick(sessionId, 'traditional--link', traditionalTitle, '', title)
 }
 
 async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
