@@ -1,5 +1,6 @@
 import cssText from 'data-text:~style.css'
 import Skeleton from 'react-loading-skeleton'
+import { addClick, getSessionId } from '~util/firestore'
 
 export default function Source ({
   error,
@@ -10,10 +11,20 @@ export default function Source ({
   if (error !== undefined && error) {
     return <></>
   } else if (placeholder !== undefined && publicationDate !== undefined && newsOutlet !== undefined) {
+    const url = 'https://www.solutionsjournalism.org/storytracker'
     let content = (
       <>
         <h2>Sourced from the&nbsp;
-          <a className={'hover:underline decoration-2'} href={'https://www.solutionsjournalism.org/storytracker'}
+          <a className={'hover:underline decoration-2'}
+             onClick={() => {
+               (async () => {
+                 const sessionId = await getSessionId()
+                 await addClick(sessionId, 'storytracker--link', '', url)
+               })().catch(e => {
+                 console.error('error adding sj link click', e)
+               })
+             }}
+             href={url}
              target="_blank"
              rel="noopener noreferrer">
             <b>Solution Story Tracker®</b>
@@ -28,7 +39,16 @@ export default function Source ({
     if (placeholder) {
       content = <>
         <h2>Discover more SJ-stories from the&nbsp;
-          <a className={'hover:underline decoration-2'} href={'https://www.solutionsjournalism.org/storytracker'}
+          <a className={'hover:underline decoration-2'}
+             onClick={() => {
+               (async () => {
+                 const sessionId = await getSessionId()
+                 await addClick(sessionId, 'placeholder--link', '', url)
+               })().catch(e => {
+                 console.error('error adding sj link click', e)
+               })
+             }}
+             href={url}
              target="_blank"
              rel="noopener noreferrer">
             <b>Solution Story Tracker®</b>
