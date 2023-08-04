@@ -1,11 +1,11 @@
 import { initializeApp } from 'firebase/app'
 import {
   addDoc,
-  arrayUnion,
   collection,
   doc,
   getDoc,
   getFirestore,
+  increment,
   serverTimestamp,
   updateDoc
 } from 'firebase/firestore'
@@ -44,8 +44,9 @@ export async function startSession (participantId: string, condition: string): P
       })
     const participantSnap = await getDoc(participantRef)
     if (participantSnap.exists()) {
+      const sessions = participantSnap.get('sessions') ?? []
       await updateDoc(participantRef, {
-        sessions: arrayUnion(sessionRef.id)
+        sessions: [...sessions, sessionRef.id]
       })
     } else {
       console.error('No such participant')
@@ -67,6 +68,36 @@ export async function endSession (sessionId: string): Promise<void> {
   }
 }
 
+export async function updateViewportTime (componentId: string, time: number): Promise<void> {
+  try {
+    const componentRef = doc(firestore, 'components', componentId)
+    const componentSnap = await getDoc(componentRef)
+    if (componentSnap.exists()) {
+      await updateDoc(componentRef, {
+        viewportTime: increment(time)
+      })
+    } else {
+      console.error('No such component')
+    }
+  } catch (e) {
+    console.error('Error updating viewport time', e)
+  }
+}
+
+export async function getViewportTime (componentId: string): Promise<number | undefined> {
+  try {
+    const componentRef = doc(firestore, 'components', componentId)
+    const componentSnap = await getDoc(componentRef)
+    if (componentSnap.exists()) {
+      return componentSnap.get('viewportTime')
+    } else {
+      console.error('No such component')
+    }
+  } catch (e) {
+    console.error('error getting viewport data', e)
+  }
+}
+
 export async function getSessionId (): Promise<string> {
   let sessionId
   if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
@@ -78,10 +109,11 @@ export async function getSessionId (): Promise<string> {
   return sessionId
 }
 
-export async function addComponent (sessionId: string, sjTitle: string, traditionalTitle: string, url: string): Promise<string | undefined> {
+export async function addComponent (sessionId: string, type: string, traditionalTitle: string, url: string = '', sjTitle: string = ''): Promise<string | undefined> {
   try {
     const sessionRef = doc(firestore, 'sessions', sessionId)
     const componentRef = await addDoc(collection(firestore, 'components'), {
+      type,
       sjTitle,
       traditionalTitle,
       url

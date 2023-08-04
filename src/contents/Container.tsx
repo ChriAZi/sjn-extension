@@ -3,7 +3,7 @@ import { sendToBackground } from '@plasmohq/messaging'
 import cssText from 'data-text:~style.css'
 
 import type { FC } from 'react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Title from '~components/Title'
 import Source from '~components/Source'
 import Description from '~components/Description'
@@ -12,6 +12,7 @@ import ActionButton from '~components/ActionButton'
 import { SkeletonTheme } from 'react-loading-skeleton'
 import { addClick, addComponent, getSessionId } from '~util/firestore'
 import { ComponentIdContext } from '~util/ComponentIdContext'
+import useComponentInViewportTime from '~util/hooks'
 
 const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
@@ -22,6 +23,9 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   // @ts-expect-error
   const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
   const margin = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? '0 0 2rem 0' : '0'
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  useComponentInViewportTime(componentId, containerRef)
 
   useEffect(() => {
     async function getRecommendationFromTitle (title: string | undefined): Promise<any> {
@@ -60,22 +64,13 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   }, [])
 
   useEffect(() => {
-    const handler = (): void => {
-      (async (): Promise<void> => {
-        if (componentId !== undefined) {
-          await addClick(componentId, 'traditional--link')
-        }
-      })().catch(e => {
-        console.error('error adding click for traditional news', e)
-      })
-    }
     anchor?.element.addEventListener('click', () => {
-      handler()
+      traditionalLinkClickHandler(componentId)
     })
 
     return () => {
       anchor?.element.removeEventListener('click', () => {
-        handler()
+        traditionalLinkClickHandler(componentId)
       })
     }
   }, [componentId])
@@ -84,13 +79,24 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
     (async () => {
       if (componentId === undefined) {
         const sessionId = await getSessionId()
-        if (article?.title !== undefined && traditionalTitle !== undefined && article.url !== undefined) {
-          const newComponentId = await addComponent(sessionId, article?.title, traditionalTitle, article?.url)
+        if (traditionalTitle !== undefined) {
+          let newComponentId
+          if (article?.error !== undefined && article.error) {
+            newComponentId = await addComponent(sessionId, 'error', traditionalTitle)
+          } else {
+            if (article?.title !== undefined && article?.url !== undefined && article?.show !== undefined && article?.error !== undefined) {
+              if (!article.show) {
+                newComponentId = await addComponent(sessionId, 'placeholder', traditionalTitle)
+              } else {
+                newComponentId = await addComponent(sessionId, 'recommendation', traditionalTitle, article.url, article.title)
+              }
+            }
+          }
           setComponentId(newComponentId)
         }
       }
     })().catch(e => {
-      console.error('error updating component id', e)
+      console.error('error updating component', e)
     })
   }, [article])
 
@@ -121,7 +127,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
         margin
       }} className={containerClasses}>
         <ComponentIdContext.Provider value={componentId}>
-          <div className={'flex min-w-0 text-base font-medium'}>
+          <div ref={containerRef} className={'flex min-w-0 text-base font-medium'}>
             {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
             <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url}/>
           </div>
@@ -143,6 +149,16 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 }
 
 export default Container
+
+const traditionalLinkClickHandler = (componentId: string | undefined): void => {
+  (async (): Promise<void> => {
+    if (componentId !== undefined) {
+      await addClick(componentId, 'traditional--link')
+    }
+  })().catch(e => {
+    console.error('error adding click for traditional news', e)
+  })
+}
 
 async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
   const articleNodes = document.querySelectorAll('article')
