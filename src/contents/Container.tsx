@@ -10,10 +10,13 @@ import Description from '~components/Description'
 import ActionButton from '~components/ActionButton'
 
 import { SkeletonTheme } from 'react-loading-skeleton'
-import { addClick } from '~util/firestore'
+import { addClick, addComponent, getSessionId } from '~util/firestore'
+import { ComponentIdContext } from '~util/ComponentIdContext'
 
 const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
+  const [componentId, setComponentId] = useState<string | undefined>(undefined)
+
   const traditionalTitle: string | undefined = getTitle(anchor)
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
@@ -54,24 +57,14 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
         error: true
       })
     })
-
-    return () => {
-      setArticle({
-        title: undefined,
-        description: undefined,
-        newsOutlet: undefined,
-        publicationDate: undefined,
-        url: undefined,
-        show: undefined,
-        error: false
-      })
-    }
   }, [])
 
   useEffect(() => {
     const handler = (): void => {
       (async (): Promise<void> => {
-        await handleTraditionalTitleClick(traditionalTitle as string, article?.title as string)
+        if (componentId !== undefined) {
+          await addClick(componentId, 'traditional--link')
+        }
       })().catch(e => {
         console.error('error adding click for traditional news', e)
       })
@@ -85,7 +78,21 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
         handler()
       })
     }
-  }, [])
+  }, [componentId])
+
+  useEffect(() => {
+    (async () => {
+      if (componentId === undefined) {
+        const sessionId = await getSessionId()
+        if (article?.title !== undefined && traditionalTitle !== undefined && article.url !== undefined) {
+          const newComponentId = await addComponent(sessionId, article?.title, traditionalTitle, article?.url)
+          setComponentId(newComponentId)
+        }
+      }
+    })().catch(e => {
+      console.error('error updating component id', e)
+    })
+  }, [article])
 
   let containerClasses = 'w-full p-4 flex flex-col gap-1 text-sm'
 
@@ -113,42 +120,29 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
         width,
         margin
       }} className={containerClasses}>
-        <div className={'flex min-w-0 text-base font-medium'}>
+        <ComponentIdContext.Provider value={componentId}>
+          <div className={'flex min-w-0 text-base font-medium'}>
+            {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
+            <Title error={article?.error} placeholder={!article?.show} title={article?.title} url={article?.url}/>
+          </div>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <Title error={article?.error} placeholder={!article?.show} traditionalTitle={traditionalTitle}
-                 title={article?.title} url={article?.url}/>
-        </div>
-        {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-        <hr className={`${article?.show ? 'border-very-light-blue' : 'border-loading-grey'}`}/>
-        {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-        <Source error={article?.error} placeholder={!article?.show}
-                publicationDate={article?.publicationDate}
-                newsOutlet={article?.newsOutlet}/>
-        <div className={`flex ${width < 720 ? 'flex-wrap gap-3' : 'gap-3'}`}>
+          <hr className={`${article?.show ? 'border-very-light-blue' : 'border-loading-grey'}`}/>
           {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <Description error={article?.error} placeholder={!article?.show} description={article?.description}/>
-          {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
-          <ActionButton error={article?.error} placeholder={!article?.show} traditionalTitle={traditionalTitle}
-                        title={article?.title}
-                        url={article?.url}/>
-        </div>
+          <Source error={article?.error} placeholder={!article?.show} publicationDate={article?.publicationDate}
+                  newsOutlet={article?.newsOutlet}/>
+          <div className={`flex ${width < 720 ? 'flex-wrap gap-3' : 'gap-3'}`}>
+            {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
+            <Description error={article?.error} placeholder={!article?.show} description={article?.description}/>
+            {/* eslint-disable-next-line @typescript-eslint/strict-boolean-expressions */}
+            <ActionButton error={article?.error} placeholder={!article?.show} url={article?.url}/>
+          </div>
+        </ComponentIdContext.Provider>
       </div>
     </SkeletonTheme>
   )
 }
 
 export default Container
-
-async function handleTraditionalTitleClick (traditionalTitle: string, title: string): Promise<void> {
-  let sessionId
-  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
-    sessionId = localStorage.getItem('sessionId')
-  } else {
-    sessionId = await chrome.storage.local.get('sessionId')
-    sessionId = sessionId.sessionId
-  }
-  await addClick(sessionId, 'traditional--link', traditionalTitle, '', title)
-}
 
 async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
   const articleNodes = document.querySelectorAll('article')

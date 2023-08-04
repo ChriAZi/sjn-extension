@@ -1,15 +1,17 @@
 import cssText from 'data-text:~style.css'
 import Skeleton from 'react-loading-skeleton'
 import sjnLogo from 'data-base64:~assets/sjn-logo.png'
-import { addClick, getSessionId } from '~util/firestore'
+import { addClick } from '~util/firestore'
+import { useContext } from 'react'
+import { ComponentIdContext } from '~util/ComponentIdContext'
 
 export default function Title ({
   error,
   placeholder,
-  traditionalTitle,
   title,
   url
 }: TitleProps): JSX.Element {
+  const componentId = useContext(ComponentIdContext)
   if (error !== undefined && error) {
     return (
       <div className={'flex min-w-0 gap-1 w-full items-center'}>
@@ -20,7 +22,7 @@ export default function Title ({
         </div>
       </div>
     )
-  } else if (placeholder !== undefined && title !== undefined && url !== undefined && traditionalTitle !== undefined) {
+  } else if (placeholder !== undefined && title !== undefined && url !== undefined) {
     let content = (
       <div className={'flex flex-wrap min-w-0 gap-1 w-full items-center'}>
         <div className={'flex gap-1.5 items-center min-w-fit text-black'}>
@@ -30,8 +32,9 @@ export default function Title ({
         <a className={'min-w-0 text-dark-blue'}
            onClick={() => {
              (async () => {
-               const sessionId = await getSessionId()
-               await addClick(sessionId, 'sj--link', traditionalTitle, url, title)
+               if (componentId !== undefined) {
+                 await addClick(componentId, 'sj--link')
+               }
              })().catch(e => {
                console.error('error adding sj link click', e)
              })
@@ -65,7 +68,6 @@ export default function Title ({
 interface TitleProps {
   error: boolean | undefined
   placeholder: boolean | undefined
-  traditionalTitle: string | undefined
   title: string | undefined
   url: string | undefined
 }

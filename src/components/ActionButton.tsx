@@ -1,22 +1,23 @@
 import cssText from 'data-text:~style.css'
-import { addClick, getSessionId } from '~util/firestore'
+import { addClick } from '~util/firestore'
+import { useContext } from 'react'
+import { ComponentIdContext } from '~util/ComponentIdContext'
 
 export default function ActionButton ({
   error,
   placeholder,
-  traditionalTitle,
-  title,
   url
 }: ActionButtonProps): JSX.Element {
+  const componentId = useContext(ComponentIdContext)
+
   if (error !== undefined && error) {
     const text = 'Browse SJ-Articles'
     const handleClick = async (): Promise<void> => {
-      const sessionId = await getSessionId()
-      const url = 'https://www.solutionsjournalism.org/storytracker'
-      await addClick(sessionId, 'error--button', traditionalTitle, url)
-      window.open(url, '_blank')
+      if (componentId !== undefined) {
+        await addClick(componentId, 'error--button')
+        window.open(url, '_blank')
+      }
     }
-
     return (
       <>
         {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
@@ -32,20 +33,21 @@ export default function ActionButton ({
   } else if (placeholder !== undefined && url !== undefined) {
     let text = 'Read Full Story'
     let handleClick = async (): Promise<void> => {
-      if (url !== undefined && title !== undefined && traditionalTitle !== undefined) {
-        const sessionId = await getSessionId()
-        await addClick(sessionId, 'sj--button', traditionalTitle, url, title)
-        window.open(url, '_blank')
+      if (url !== undefined) {
+        if (componentId !== undefined) {
+          await addClick(componentId, 'sj--button')
+          window.open(url, '_blank')
+        }
       }
     }
 
     if (placeholder) {
       text = 'Browse SJ-Articles'
       handleClick = async (): Promise<void> => {
-        const sessionId = await getSessionId()
-        const url = 'https://www.solutionsjournalism.org/storytracker'
-        await addClick(sessionId, 'placeholder--button', traditionalTitle, url)
-        window.open(url, '_blank')
+        if (componentId !== undefined) {
+          await addClick(componentId, 'placeholder--button')
+          window.open('https://www.solutionsjournalism.org/storytracker', '_blank')
+        }
       }
     }
     return (
@@ -68,8 +70,6 @@ export default function ActionButton ({
 interface ActionButtonProps {
   error: boolean | undefined
   placeholder: boolean | undefined
-  traditionalTitle: string | undefined
-  title: string | undefined
   url: string | undefined
 }
 

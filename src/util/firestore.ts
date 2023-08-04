@@ -78,22 +78,40 @@ export async function getSessionId (): Promise<string> {
   return sessionId
 }
 
-export async function addClick (sessionId: string, clickType: string, traditionalTitle: string = '', url: string = '', sjTitle: string = ''): Promise<void> {
+export async function addComponent (sessionId: string, sjTitle: string, traditionalTitle: string, url: string): Promise<string | undefined> {
   try {
     const sessionRef = doc(firestore, 'sessions', sessionId)
+    const componentRef = await addDoc(collection(firestore, 'components'), {
+      sjTitle,
+      traditionalTitle,
+      url
+    })
     const sessionSnap = await getDoc(sessionRef)
     if (sessionSnap.exists()) {
-      const clicks = sessionSnap.get('clicks') ?? []
+      const components = sessionSnap.get('components') ?? []
       await updateDoc(sessionRef, {
-        clicks: [...clicks, {
-          type: clickType,
-          sjTitle,
-          traditionalTitle,
-          url
-        }]
+        components: [...components, componentRef.id]
       })
+      return componentRef.id
     } else {
       console.error('No such session')
+    }
+  } catch (e) {
+    console.error('Error getting component: ', e)
+  }
+}
+
+export async function addClick (componentId: string, clickType: string): Promise<void> {
+  try {
+    const componentRef = doc(firestore, 'components', componentId)
+    const componentSnap = await getDoc(componentRef)
+    if (componentSnap.exists()) {
+      const clicks = componentSnap.get('clicks') ?? []
+      await updateDoc(componentRef, {
+        clicks: [...clicks, clickType]
+      })
+    } else {
+      console.error('No such component')
     }
   } catch (e) {
     console.error('Error adding click: ', e)

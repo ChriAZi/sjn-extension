@@ -1,6 +1,8 @@
 import cssText from 'data-text:~style.css'
 import Skeleton from 'react-loading-skeleton'
-import { addClick, getSessionId } from '~util/firestore'
+import { addClick } from '~util/firestore'
+import { useContext } from 'react'
+import { ComponentIdContext } from '~util/ComponentIdContext'
 
 export default function Source ({
   error,
@@ -12,14 +14,16 @@ export default function Source ({
     return <></>
   } else if (placeholder !== undefined && publicationDate !== undefined && newsOutlet !== undefined) {
     const url = 'https://www.solutionsjournalism.org/storytracker'
+    const componentId = useContext(ComponentIdContext)
     let content = (
       <>
         <h2>Sourced from the&nbsp;
           <a className={'hover:underline decoration-2'}
              onClick={() => {
                (async () => {
-                 const sessionId = await getSessionId()
-                 await addClick(sessionId, 'storytracker--link', '', url)
+                 if (componentId !== undefined) {
+                   await addClick(componentId, 'storytracker--link')
+                 }
                })().catch(e => {
                  console.error('error adding sj link click', e)
                })
@@ -42,8 +46,9 @@ export default function Source ({
           <a className={'hover:underline decoration-2'}
              onClick={() => {
                (async () => {
-                 const sessionId = await getSessionId()
-                 await addClick(sessionId, 'placeholder--link', '', url)
+                 if (componentId !== undefined) {
+                   await addClick(componentId, 'placeholder--link')
+                 }
                })().catch(e => {
                  console.error('error adding sj link click', e)
                })
