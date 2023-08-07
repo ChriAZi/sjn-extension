@@ -77,20 +77,22 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
     (async () => {
       if (componentId === undefined) {
         const sessionId = await getSessionId()
-        if (traditionalTitle !== undefined) {
-          let newComponentId
-          if (article?.error !== undefined && article.error) {
-            newComponentId = await addComponent(sessionId, 'error', traditionalTitle)
-          } else {
-            if (article?.title !== undefined && article?.url !== undefined && article?.show !== undefined && article?.error !== undefined) {
-              if (!article.show) {
-                newComponentId = await addComponent(sessionId, 'placeholder', traditionalTitle)
-              } else {
-                newComponentId = await addComponent(sessionId, 'recommendation', traditionalTitle, article.url, article.title)
+        if (process.env.PLASMO_PUBLIC_LAB_STUDY !== 'true') {
+          if (traditionalTitle !== undefined) {
+            let newComponentId
+            if (article?.error !== undefined && article.error) {
+              newComponentId = await addComponent(sessionId, 'error', traditionalTitle)
+            } else {
+              if (article?.title !== undefined && article?.url !== undefined && article?.show !== undefined && article?.error !== undefined) {
+                if (!article.show) {
+                  newComponentId = await addComponent(sessionId, 'placeholder', traditionalTitle)
+                } else {
+                  newComponentId = await addComponent(sessionId, 'recommendation', traditionalTitle, article.url, article.title)
+                }
               }
             }
+            setComponentId(newComponentId)
           }
-          setComponentId(newComponentId)
         }
       }
     })().catch(e => {
