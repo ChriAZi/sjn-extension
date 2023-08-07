@@ -12,7 +12,6 @@ import ActionButton from '~components/ActionButton'
 import { SkeletonTheme } from 'react-loading-skeleton'
 import { addClick, addComponent, getSessionId } from '~util/firestore'
 import { ComponentIdContext } from '~util/ComponentIdContext'
-import useComponentInViewportTime from '~util/hooks'
 
 const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
@@ -25,7 +24,6 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const margin = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? '0 0 2rem 0' : '0'
 
   const containerRef = useRef<HTMLDivElement>(null)
-  useComponentInViewportTime(componentId, containerRef)
 
   useEffect(() => {
     async function getRecommendationFromTitle (title: string | undefined): Promise<any> {

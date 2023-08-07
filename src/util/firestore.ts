@@ -1,14 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getFirestore,
-  increment,
-  serverTimestamp,
-  updateDoc
-} from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: process.env.PLASMO_PUBLIC_FIREBASE_API_KEY,
@@ -65,36 +56,6 @@ export async function endSession (sessionId: string): Promise<void> {
     })
   } catch (e) {
     console.error('Error ending session: ', e)
-  }
-}
-
-export async function updateViewportTime (componentId: string, time: number): Promise<void> {
-  try {
-    const componentRef = doc(firestore, 'components', componentId)
-    const componentSnap = await getDoc(componentRef)
-    if (componentSnap.exists()) {
-      await updateDoc(componentRef, {
-        viewportTime: increment(time)
-      })
-    } else {
-      console.error('No such component')
-    }
-  } catch (e) {
-    console.error('Error updating viewport time', e)
-  }
-}
-
-export async function getViewportTime (componentId: string): Promise<number | undefined> {
-  try {
-    const componentRef = doc(firestore, 'components', componentId)
-    const componentSnap = await getDoc(componentRef)
-    if (componentSnap.exists()) {
-      return componentSnap.get('viewportTime')
-    } else {
-      console.error('No such component')
-    }
-  } catch (e) {
-    console.error('error getting viewport data', e)
   }
 }
 
