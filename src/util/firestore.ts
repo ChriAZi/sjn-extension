@@ -113,6 +113,7 @@ export async function addComponent (sessionId: string, type: string, traditional
   try {
     const sessionRef = doc(firestore, 'sessions', sessionId)
     const componentRef = await addDoc(collection(firestore, 'components'), {
+      sessionId: sessionRef.id,
       type,
       sjTitle,
       traditionalTitle,
@@ -120,9 +121,15 @@ export async function addComponent (sessionId: string, type: string, traditional
     })
     const sessionSnap = await getDoc(sessionRef)
     if (sessionSnap.exists()) {
-      const components = sessionSnap.get('components') ?? []
+      const components = sessionSnap.get('components')
+      let updatedComponents
+      if (components !== undefined) {
+        updatedComponents = [...components, componentRef.id]
+      } else {
+        updatedComponents = [componentRef.id]
+      }
       await updateDoc(sessionRef, {
-        components: [...components, componentRef.id]
+        components: updatedComponents
       })
       return componentRef.id
     } else {
@@ -140,7 +147,10 @@ export async function addClick (componentId: string, clickType: string): Promise
     if (componentSnap.exists()) {
       const clicks = componentSnap.get('clicks') ?? []
       await updateDoc(componentRef, {
-        clicks: [...clicks, clickType]
+        clicks: [...clicks, {
+          clickType,
+          clickedAt: new Date()
+        }]
       })
     } else {
       console.error('No such component')
