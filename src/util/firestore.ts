@@ -70,15 +70,16 @@ export async function getSessionId (): Promise<string> {
   return sessionId
 }
 
-export async function addComponent (sessionId: string, type: string, traditionalTitle: string, url: string = '', sjTitle: string = ''): Promise<string | undefined> {
+export async function addComponent (sessionId: string, type: string, traditionalTitle: string, sjURL: string = '', sjTitle: string = '', traditionalURL: string = ''): Promise<string | undefined> {
   try {
     const sessionRef = doc(firestore, 'sessions', sessionId)
     const componentRef = await addDoc(collection(firestore, 'components'), {
       sessionId: sessionRef.id,
       type,
       sjTitle,
+      sjURL,
       traditionalTitle,
-      url
+      traditionalURL
     })
     const sessionSnap = await getDoc(sessionRef)
     if (sessionSnap.exists()) {

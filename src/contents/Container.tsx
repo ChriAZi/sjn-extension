@@ -18,7 +18,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [componentId, setComponentId] = useState<string | undefined>(undefined)
 
   const traditionalTitle: string | undefined = getTitle(anchor)
-  const anchorDatasetValues: Record<string, string | number> | undefined = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' ? getDatasetValues(anchor) : undefined
+  const anchorDatasetValues: Record<string, string | number> | undefined = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? getDatasetValues(anchor) : undefined
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
@@ -28,7 +28,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
   useEffect(() => {
     async function getRecommendationFromTitle (title: string | undefined, anchorDatasetValues: Record<string, string | number> | undefined): Promise<any> {
-      if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+      if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype') {
         if (anchorDatasetValues !== undefined) {
           const res = await sendToBackground({
             name: 'recommender',
