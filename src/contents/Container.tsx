@@ -18,6 +18,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [componentId, setComponentId] = useState<string | undefined>(undefined)
 
   const traditionalTitle: string | undefined = getTitle(anchor)
+  const anchorDatasetValues: Record<string, string | number> | undefined = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' ? getDatasetValues(anchor) : undefined
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
@@ -26,29 +27,55 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    async function getRecommendationFromTitle (title: string | undefined): Promise<any> {
-      const res = await sendToBackground({
-        name: 'recommender',
-        body: {
-          title
+    async function getRecommendationFromTitle (title: string | undefined, anchorDatasetValues: Record<string, string | number> | undefined): Promise<any> {
+      if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+        if (anchorDatasetValues !== undefined) {
+          const res = await sendToBackground({
+            name: 'recommender',
+            body: {
+              title,
+              embedding: anchorDatasetValues.embedding,
+              sjTitle: anchorDatasetValues.sjTitle
+            }
+          })
+          if (res === 'error') {
+            throw new Error()
+          } else {
+            setArticle({
+              title: res.article.title,
+              description: res.article.description,
+              newsOutlet: res.article.newsOutlet,
+              publicationDate: new Date(Date.parse(res.article.publicationDate)),
+              url: res.article.url,
+              show: res.article.show,
+              error: false
+            })
+          }
         }
-      })
-      if (res === 'error') {
-        throw new Error()
       } else {
-        setArticle({
-          title: res.article.title,
-          description: res.article.description,
-          newsOutlet: res.article.newsOutlet,
-          publicationDate: new Date(Date.parse(res.article.publicationDate)),
-          url: res.article.url,
-          show: res.article.show,
-          error: false
+        const res = await sendToBackground({
+          name: 'recommender',
+          body: {
+            title
+          }
         })
+        if (res === 'error') {
+          throw new Error()
+        } else {
+          setArticle({
+            title: res.article.title,
+            description: res.article.description,
+            newsOutlet: res.article.newsOutlet,
+            publicationDate: new Date(Date.parse(res.article.publicationDate)),
+            url: res.article.url,
+            show: res.article.show,
+            error: false
+          })
+        }
       }
     }
 
-    getRecommendationFromTitle(traditionalTitle).catch(() => {
+    getRecommendationFromTitle(traditionalTitle, anchorDatasetValues).catch(() => {
       setArticle({
         title: undefined,
         description: undefined,
@@ -217,6 +244,20 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
     }
   }
   return anchors as unknown as PlasmoGetInlineAnchorList
+}
+
+function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string, string | number> | undefined {
+  if (anchor !== undefined) {
+    const element = anchor.element as HTMLElement
+    if (element.dataset?.embedding !== undefined && element.dataset.sjTitle !== undefined) {
+      return {
+        embedding: JSON.parse(element.dataset.embedding),
+        sjTitle: element.dataset.sjTitle
+      }
+    }
+  } else {
+    return undefined
+  }
 }
 
 function getTitle (anchor: PlasmoCSUIAnchor | undefined): string | undefined {

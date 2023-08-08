@@ -8,41 +8,72 @@ const handler: PlasmoMessaging.MessageHandler = async (req: PlasmoMessaging.Requ
     .catch(() => {
       res.send('error')
     })
-  const hfClient = setupHuggingFace()
-  const sourceString = req.body.title
-  const embeddedSourceString = await getEmbedding(hfClient, sourceString)
-    .catch(() => {
+  if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true') {
+    const recommendation = await index.query({
+      queryRequest: {
+        topK: 1,
+        includeMetadata: true,
+        vector: req.body.embedding
+      }
+    }).catch(() => {
       res.send('error')
     })
 
-  const recommendation = await index.query({
-    queryRequest: {
-      topK: 1,
-      includeMetadata: true,
-      vector: embeddedSourceString
+    if (recommendation !== undefined) {
+      const metadata = recommendation.matches[0].metadata
+
+      const article = {
+        title: metadata.title,
+        description: metadata.description,
+        newsOutlet: metadata.news_outlet,
+        publicationDate: metadata.publication_date,
+        url: metadata.url,
+        show: true
+      }
+
+      res.send({
+        article
+      })
+    } else {
+      res.send('error')
     }
-  }).catch(() => {
-    res.send('error')
-  })
-
-  if (recommendation !== undefined) {
-    const metadata = recommendation.matches[0].metadata
-    const show = Number(recommendation.matches[0].score) >= (process.env.PLASMO_PUBLIC_SIM_CUTOFF as unknown as number)
-
-    const article = {
-      title: metadata.title,
-      description: metadata.description,
-      newsOutlet: metadata.news_outlet,
-      publicationDate: metadata.publication_date,
-      url: metadata.url,
-      show
-    }
-
-    res.send({
-      article
-    })
   } else {
-    res.send('error')
+    const hfClient = setupHuggingFace()
+    const sourceString = req.body.title
+    const embeddedSourceString = await getEmbedding(hfClient, sourceString)
+      .catch(() => {
+        res.send('error')
+      })
+
+    const recommendation = await index.query({
+      queryRequest: {
+        topK: 1,
+        includeMetadata: true,
+        vector: embeddedSourceString
+      }
+    }).catch(() => {
+      res.send('error')
+    })
+
+    if (recommendation !== undefined) {
+      const metadata = recommendation.matches[0].metadata
+      const show = Number(recommendation.matches[0].score) >= (process.env.PLASMO_PUBLIC_SIM_CUTOFF as unknown as number)
+
+      const article = {
+        title: metadata.title,
+        description: metadata.description,
+        newsOutlet: metadata.news_outlet,
+        publicationDate: metadata.publication_date,
+        url: metadata.url,
+        show
+      }
+
+      res.send({
+        article
+      })
+    } else {
+      res.send('error')
+    }
   }
 }
 
