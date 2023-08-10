@@ -104,6 +104,7 @@ export async function addComponent (sessionId: string, type: string, traditional
 
 export async function addClick (componentId: string, clickType: string): Promise<void> {
   try {
+    console.log(componentId)
     const componentRef = doc(firestore, 'components', componentId)
     const componentSnap = await getDoc(componentRef)
     if (componentSnap.exists()) {

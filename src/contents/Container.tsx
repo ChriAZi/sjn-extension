@@ -117,6 +117,10 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
             }
             setComponentId(newComponentId)
           }
+        } else {
+          if (anchorDatasetValues?.componentId !== undefined) {
+            setComponentId(anchorDatasetValues.componentId as string)
+          }
         }
       }
     })().catch(e => {
@@ -246,9 +250,10 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
 function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string, string | number> | undefined {
   if (anchor !== undefined) {
     const element = anchor.element as HTMLElement
-    if (element.dataset?.embedding !== undefined) {
+    if (element.dataset?.embedding !== undefined && element.dataset?.componentId !== undefined) {
       return {
-        embedding: JSON.parse(element.dataset.embedding)
+        embedding: JSON.parse(element.dataset.embedding),
+        componentId: element.dataset.componentId
       }
     }
   } else {
