@@ -19,9 +19,7 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
   const traditionalTitle: string | undefined = getTitle(anchor)
   const anchorDatasetValues: Record<string, string | number> | undefined = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? getDatasetValues(anchor) : undefined
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  const width = (anchor?.element.offsetWidth === 0) ? anchor?.element?.parentNode.parentNode.offsetWidth : anchor?.element.offsetWidth
+  const width = getWidth(anchor)
   const margin = process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype' ? '0 0 2rem 0' : '0'
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -255,6 +253,21 @@ function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string,
     }
   } else {
     return undefined
+  }
+}
+
+function getWidth (anchor: PlasmoCSUIAnchor | undefined): number {
+  if (anchor !== undefined) {
+    const element = anchor.element as HTMLElement
+    if (element.offsetWidth === 0) {
+      const greatParent = element?.parentElement?.parentElement
+      if (greatParent !== null && greatParent !== undefined) {
+        return greatParent.offsetWidth
+      }
+    }
+    return element.offsetWidth
+  } else {
+    return 840
   }
 }
 
