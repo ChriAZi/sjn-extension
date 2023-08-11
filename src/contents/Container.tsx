@@ -32,7 +32,8 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
             name: 'recommender',
             body: {
               title,
-              embedding: anchorDatasetValues.embedding
+              embedding: anchorDatasetValues.embedding,
+              sjTitle: anchorDatasetValues.sjTitle
             }
           })
           if (res === 'error') {
@@ -250,10 +251,11 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
 function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string, string | number> | undefined {
   if (anchor !== undefined) {
     const element = anchor.element as HTMLElement
-    if (element.dataset?.embedding !== undefined && element.dataset?.componentId !== undefined) {
+    if (element.dataset?.embedding !== undefined && element.dataset?.componentId !== undefined && element.dataset?.sjTitle !== undefined) {
       return {
         embedding: JSON.parse(element.dataset.embedding),
-        componentId: element.dataset.componentId
+        componentId: element.dataset.componentId,
+        sjTitle: element.dataset.sjTitle
       }
     }
   } else {

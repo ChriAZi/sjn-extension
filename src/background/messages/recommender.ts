@@ -13,27 +13,57 @@ const handler: PlasmoMessaging.MessageHandler = async (req: PlasmoMessaging.Requ
       queryRequest: {
         topK: 1,
         includeMetadata: true,
-        vector: req.body.embedding
+        vector: req.body.embedding,
+        filter: { title: { $eq: req.body.sjTitle } }
       }
     }).catch(() => {
       res.send('error')
     })
 
     if (recommendation !== undefined) {
-      const metadata = recommendation.matches[0].metadata
+      const matches = recommendation.matches
+      if (matches[0] !== undefined) {
+        const metadata = matches[0].metadata
 
-      const article = {
-        title: metadata.title,
-        description: metadata.description,
-        newsOutlet: metadata.news_outlet,
-        publicationDate: metadata.publication_date,
-        url: metadata.url,
-        show: true
+        const article = {
+          title: metadata.title,
+          description: metadata.description,
+          newsOutlet: metadata.news_outlet,
+          publicationDate: metadata.publication_date,
+          url: metadata.url,
+          show: true
+        }
+
+        res.send({
+          article
+        })
+      } else {
+        const recommendation = await index.query({
+          queryRequest: {
+            topK: 1,
+            includeMetadata: true,
+            vector: req.body.embedding
+          }
+        }).catch(() => {
+          res.send('error')
+        })
+        if (recommendation !== undefined) {
+          const metadata = recommendation.matches[0].metadata
+
+          const article = {
+            title: metadata.title,
+            description: metadata.description,
+            newsOutlet: metadata.news_outlet,
+            publicationDate: metadata.publication_date,
+            url: metadata.url,
+            show: true
+          }
+
+          res.send({
+            article
+          })
+        }
       }
-
-      res.send({
-        article
-      })
     } else {
       res.send('error')
     }

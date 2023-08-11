@@ -103,8 +103,9 @@ export async function addComponent (sessionId: string, type: string, traditional
 }
 
 export async function addClick (componentId: string, clickType: string): Promise<void> {
+  localStorage.setItem('lastClickedComponentId', componentId)
+  localStorage.setItem('lastClickedComponentType', clickType)
   try {
-    console.log(componentId)
     const componentRef = doc(firestore, 'components', componentId)
     const componentSnap = await getDoc(componentRef)
     if (componentSnap.exists()) {
