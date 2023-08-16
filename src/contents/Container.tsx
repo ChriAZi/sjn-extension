@@ -28,27 +28,15 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
     async function getRecommendationFromTitle (title: string | undefined, anchorDatasetValues: Record<string, string | number> | undefined): Promise<any> {
       if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype') {
         if (anchorDatasetValues !== undefined) {
-          const res = await sendToBackground({
-            name: 'recommender',
-            body: {
-              title,
-              embedding: anchorDatasetValues.embedding,
-              sjTitle: anchorDatasetValues.sjTitle
-            }
+          setArticle({
+            title: anchorDatasetValues.sjTitle as string,
+            description: anchorDatasetValues.sjDescription as string,
+            newsOutlet: anchorDatasetValues.sjNewsOutlet as string,
+            publicationDate: new Date(Date.parse(anchorDatasetValues.sjPublishingDate as string)),
+            url: anchorDatasetValues.sjURL as string,
+            show: true,
+            error: false
           })
-          if (res === 'error') {
-            throw new Error()
-          } else {
-            setArticle({
-              title: res.article.title,
-              description: res.article.description,
-              newsOutlet: res.article.newsOutlet,
-              publicationDate: new Date(Date.parse(res.article.publicationDate)),
-              url: res.article.url,
-              show: res.article.show,
-              error: false
-            })
-          }
         }
       } else {
         const res = await sendToBackground({
@@ -251,11 +239,22 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
 function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string, string | number> | undefined {
   if (anchor !== undefined) {
     const element = anchor.element as HTMLElement
-    if (element.dataset?.embedding !== undefined && element.dataset?.componentId !== undefined && element.dataset?.sjTitle !== undefined) {
+
+    if (element.dataset?.embedding !== undefined &&
+      element.dataset?.componentId !== undefined &&
+      element.dataset?.sjTitle !== undefined &&
+      element.dataset?.sjDescription !== undefined &&
+      element.dataset?.sjNewsOutlet !== undefined &&
+      element.dataset?.sjPublishingDate !== undefined &&
+      element.dataset?.sjURL !== undefined) {
       return {
         embedding: JSON.parse(element.dataset.embedding),
         componentId: element.dataset.componentId,
-        sjTitle: element.dataset.sjTitle
+        sjTitle: element.dataset.sjTitle,
+        sjDescription: element.dataset.sjDescription,
+        sjNewsOutlet: element.dataset.sjNewsOutlet,
+        sjPublishingDate: element.dataset.sjPublishingDate,
+        sjURL: element.dataset.sjURL
       }
     }
   } else {
