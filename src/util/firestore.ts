@@ -1,6 +1,10 @@
 import { initializeApp } from 'firebase/app'
 import { addDoc, collection, doc, getDoc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore'
 
+/**
+ * File handles all logic for tracking behavioral data using firestore in the backend
+ */
+
 const firebaseConfig = {
   apiKey: process.env.PLASMO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.PLASMO_PUBLIC_FIREBASE_AUTH_DOMAIN,

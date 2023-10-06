@@ -1,33 +1,54 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+# SJ-Extension
 
-## Getting Started
+## Prerequisites
 
-First, run the development server:
+- Setup [Node.js](https://nodejs.org/de) and [npm](https://www.npmjs.com/)
+- Install [Plasmo](https://www.plasmo.com/)
+- Create a [Firebase Project](https://firebase.google.com/docs/web/setup)
+- Create a [Pinecone account](https://www.pinecone.io/)
+- Create a [HuggingFace account](https://huggingface.co/)
 
-```bash
-pnpm dev
-# or
-npm run dev
+## Folder Structure
+
+- assets: contains all images, icons etc.
+- src: contains all business logic and UI components
+
+## Running the extension
+
+After having setup your development environment as described above, follow these steps:
+
+1. Install dependencies using `npm install`
+2. Run plasmo following the instructions in their [docs](https://docs.plasmo.com/framework)
+
+## Additional Notes
+
+All credentials are managed using a `.env` file with the following structure:
+
 ```
+# the embedding model to use
+PLASMO_PUBLIC_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
+# your huggingface API key
+PLASMO_PUBLIC_HF_API_KEY=YOURAPIKEY
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+# pinecone index name (can be anything)
+PLASMO_PUBLIC_PC_INDEX_NAME=default
+# your pinecone api key
+PLASMO_PUBLIC_PC_API_KEY=YOURAPIKEY
+# the pod region (indicated when setting up a pinceone account)
+PLASMO_PUBLIC_PC_ENVIRONMENT=e.g. us-west1-gcp-free
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
+# similarity search value -> choose below which value no recommendations should be shown
+PLASMO_PUBLIC_SIM_CUTOFF=0.28829948855204757
 
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
+# lab/field study setup
+# set to true to work within the lab appliaction, set to false to work in the chrome extension
+PLASMO_PUBLIC_LAB_STUDY=false
 
-## Making production build
-
-Run the following:
-
-```bash
-pnpm build
-# or
-npm run build
+# Firebase credentials (explained when setting up a firebase project)
+PLASMO_PUBLIC_FIREBASE_API_KEY=YOURAPIKEY
+PLASMO_PUBLIC_FIREBASE_AUTH_DOMAIN=YOURAUTHDOMAIN
+PLASMO_PUBLIC_FIREBASE_PROJECT_ID=YOURPROJECT ID
+PLASMO_PUBLIC_FIREBASE_STORAGE_BUCKET=YOURSTORAGEBUCKET
+PLASMO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=MESSAINGSENDERID
+PLASMO_PUBLIC_FIREBASE_APP_ID=APPID
 ```
-
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
-
-## Submit to the webstores
-
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!

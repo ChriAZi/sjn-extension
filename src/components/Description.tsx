@@ -1,6 +1,13 @@
 import cssText from 'data-text:~style.css'
 import Skeleton from 'react-loading-skeleton'
 
+/**
+ * Renders the short description below the headline in the recommendation UI
+ * @param error - shows a different UI if theres an error
+ * @param placeholder - shows a placeholder if the recommendation is below the treshold
+ * @param description - the descriptin to be shown
+ * @constructor
+ */
 export default function Description ({
   error,
   placeholder,

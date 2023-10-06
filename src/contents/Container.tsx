@@ -13,6 +13,11 @@ import { SkeletonTheme } from 'react-loading-skeleton'
 import { addClick, addComponent, getSessionId } from '~util/firestore'
 import { ComponentIdContext } from '~util/ComponentIdContext'
 
+/**
+ * The main component responsible for rendering the recommendation UI and getting the recommendation from the backend
+ * @param anchor - the element to attach the recommendation UI to (some anchor in the hostpage, usually below the respective article tag)
+ * @constructor
+ */
 const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
   const [article, setArticle] = useState<Article | null>(null)
   const [componentId, setComponentId] = useState<string | undefined>(undefined)
@@ -167,6 +172,10 @@ const Container: FC<PlasmoCSUIProps> = ({ anchor }) => {
 
 export default Container
 
+/**
+ * behavioral tracking for the traditional link clicks
+ * @param componentId - the component (SJ/TJ pair) clicked by the user
+ */
 const traditionalLinkClickHandler = (componentId: string | undefined): void => {
   (async (): Promise<void> => {
     if (componentId !== undefined) {
@@ -236,6 +245,10 @@ async function getAnchor (): Promise<PlasmoGetInlineAnchorList> {
   return anchors as unknown as PlasmoGetInlineAnchorList
 }
 
+/**
+ * Used to get all data for the controlled set of articles when doing a lab study to not have to connect to the backend and therefore increase loading times
+ * Other part of logic is in the lab application code which loads the dataset of articles and attaches all relevant data to the respective article elements in the newsfeed
+ */
 function getDatasetValues (anchor: PlasmoCSUIAnchor | undefined): Record<string, string | number> | undefined {
   if (anchor !== undefined) {
     const element = anchor.element as HTMLElement
@@ -277,6 +290,9 @@ function getWidth (anchor: PlasmoCSUIAnchor | undefined): number {
   }
 }
 
+/**
+ * Extract the headline of the TJ-article in the hostpage newsfeed
+ */
 function getTitle (anchor: PlasmoCSUIAnchor | undefined): string | undefined {
   return process.env.PLASMO_PUBLIC_LAB_STUDY === 'true' && localStorage.getItem('condition') === 'prototype'
     ? anchor?.element.querySelector('h2 > a')?.innerHTML

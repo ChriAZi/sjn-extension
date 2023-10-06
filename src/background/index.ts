@@ -1,5 +1,8 @@
 import { addParticipant, endSession, startSession } from '~util/firestore'
 
+/**
+ * Both listeners are used for tracking witin a field study environment and not used right now.
+ */
 chrome.runtime.onInstalled.addListener(() => {
   (async () => {
     if (process.env.PLASMO_PUBLIC_LAB_STUDY === 'false') {

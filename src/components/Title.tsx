@@ -5,6 +5,14 @@ import { addClick } from '~util/firestore'
 import { useContext } from 'react'
 import { ComponentIdContext } from '~util/ComponentIdContext'
 
+/**
+ * Renders the headline in the recommendation UI
+ * @param error - shows a different text if theres an error
+ * @param placeholder - shows a different text if the recommendation is below the treshold
+ * @param title - the headline of the SJ-article recommendation
+ * @param url - the url to navigate to when clicking the headline
+ * @constructor
+ */
 export default function Title ({
   error,
   placeholder,

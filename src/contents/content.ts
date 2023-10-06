@@ -1,5 +1,9 @@
 import type { PlasmoCSConfig } from 'plasmo'
 
+/**
+ * File contains minor design changes when loading the recommendation UI into Google news e.g. so that all corners are rounded etc.
+ */
+
 function getGreatGrandParents (): HTMLElement[] {
   const articles = document.querySelectorAll('article')
   return Array.from(articles).map(article => {

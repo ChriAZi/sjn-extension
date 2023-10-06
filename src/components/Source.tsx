@@ -4,6 +4,14 @@ import { addClick } from '~util/firestore'
 import { useContext } from 'react'
 import { ComponentIdContext } from '~util/ComponentIdContext'
 
+/**
+ * Renders the source component below the headline in the recommendation UI
+ * @param error - shows a different UI if there is an error
+ * @param placeholder - shows a placeholder if the recommendation is below the treshold
+ * @param publicationDate - the publication date of the SJ-article recommendation
+ * @param newsOutlet - the news outlet of the SJ-article recommendation
+ * @constructor
+ */
 export default function Source ({
   error,
   placeholder,

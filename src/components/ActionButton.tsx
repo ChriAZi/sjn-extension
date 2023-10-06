@@ -3,6 +3,13 @@ import { addClick } from '~util/firestore'
 import { useContext } from 'react'
 import { ComponentIdContext } from '~util/ComponentIdContext'
 
+/**
+ * Renders the ActionButton component in the bottom right corner of the recommenation UI
+ * @param error - shows a different UI if theres an error
+ * @param placeholder - shows a placeholder if the recommendation is below the treshold
+ * @param url - the url to navigate to when clicking the button
+ * @constructor
+ */
 export default function ActionButton ({
   error,
   placeholder,

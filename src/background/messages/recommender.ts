@@ -3,6 +3,13 @@ import { PineconeClient } from '@pinecone-database/pinecone'
 import { type FeatureExtractionOutput, HfInference } from '@huggingface/inference'
 import type { PlasmoMessaging } from '@plasmohq/messaging'
 
+/**
+ * Gets a request for a reocmmendation from the frontend and returns a recommendation object
+ * Loads articles from the respective components data-properties when using the lab application
+ * Else loads them from the pinecone database
+ * @param req - the request containing an embedding of a TJ-headline to compare to the SJ-articles in the pinceonce database
+ * @param res - the response sent back to the frontend including the relevant SJ-article
+ */
 const handler: PlasmoMessaging.MessageHandler = async (req: PlasmoMessaging.Request, res: PlasmoMessaging.Response) => {
   const index = await setupPineCone()
     .catch(() => {
@@ -109,6 +116,10 @@ const handler: PlasmoMessaging.MessageHandler = async (req: PlasmoMessaging.Requ
 
 export default handler
 
+/**
+ * Connects to the pinecone database
+ * Creates an index if it was shutdown after not using it for 2 weeks (only necessary in the free tier)
+ */
 async function setupPineCone (): Promise<any> {
   const pinecone = new PineconeClient()
 
@@ -143,10 +154,18 @@ async function setupPineCone (): Promise<any> {
   return index
 }
 
+/**
+ * Connect to HuggingFace
+ */
 function setupHuggingFace (): HfInference {
   return new HfInference(process.env.PLASMO_PUBLIC_HF_API_KEY)
 }
 
+/**
+ * Get an embedding from an input string (TJ-headline in this case)
+ * @param hfClient - the huggingface client
+ * @param inputString - an input string to be embedded
+ */
 async function getEmbedding (hfClient: HfInference, inputString: string): Promise<FeatureExtractionOutput> {
   return await hfClient.featureExtraction({
     model: process.env.PLASMO_PUBLIC_MODEL_NAME,
